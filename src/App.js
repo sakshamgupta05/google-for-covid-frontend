@@ -63,23 +63,26 @@ const useStylesRoot = makeStyles(theme => ({
     marginRight: theme.spacing(2)
   },
   progress: {
-    display: 'flex',
-    '& > * + *': {
-      marginLeft: theme.spacing(2),
-    },
+    display: 'block',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginTop: theme.spacing(2)
   }
 }));
 
 function App() {
   const classes = useStylesRoot();
+  const [progress, setProgress] = React.useState(false)
   const [articles, setArticles] = React.useState([])
   const [highlights, setHighlights] = React.useState([])
 
   React.useEffect(() => {
     var q = queryString.parse(window.location.search);
     if (q.search) {
+      setProgress(true)
       postData(url, JSON.stringify(q.search))
         .then((data) => {
+          setProgress(false)
           console.log(data); // JSON data parsed by `response.json()` call
           setArticles(data.results.results.Articles)
           setHighlights(data.results.results.Highlights)
@@ -88,39 +91,46 @@ function App() {
   }, [])
   return (
     <div>
-      <PrimarySearchAppBar setArticles={setArticles} setHighlights={setHighlights} />
-      {/* <CircularProgress /> */}
+      <PrimarySearchAppBar setArticles={setArticles} setHighlights={setHighlights} setProgress={setProgress} />
       {
-        highlights && highlights.length > 0 && (
-          <Grid container className={classes.root} spacing={2}>
-            <Grid item xs={12} md={8}>
-              <div className={classes.highlights}>
-                <Typography variant="h5" component="h2">
-                  Highlights
-                </Typography>
-                <ul>
+        progress
+          ? <CircularProgress className={classes.progress} />
+          : (
+            <>
+              {
+                highlights && highlights.length > 0 && (
+                  <Grid container className={classes.root} spacing={2}>
+                    <Grid item xs={12} md={8}>
+                      <div className={classes.highlights}>
+                        <Typography variant="h5" component="h2">
+                          Highlights
+                        </Typography>
+                        <ul>
+                          {
+                            highlights && highlights.map(hl => (
+                              <li>{hl}</li>
+                            ))
+                          }
+                        </ul>
+                      </div>
+                    </Grid>
+                  </Grid>
+                )
+              }
+              <Grid container className={classes.root} spacing={2}>
+                <Grid item xs={12} md={8}>
                   {
-                    highlights && highlights.map(hl => (
-                      <li>{hl}</li>
+                    articles && articles.map(article => (
+                      <div key={article.Id} className={classes.container}>
+                        <SimpleCard className={classes.card} article={article} />
+                      </div>
                     ))
                   }
-                </ul>
-              </div>
-            </Grid>
-          </Grid>
-        )
+                </Grid>
+              </Grid>
+            </>
+          )
       }
-      <Grid container className={classes.root} spacing={2}>
-        <Grid item xs={12} md={8}>
-          {
-            articles && articles.map(article => (
-              <div key={article.Id} className={classes.container}>
-                <SimpleCard className={classes.card} article={article} />
-              </div>
-            ))
-          }
-        </Grid>
-      </Grid>
     </div>
   );
 }
@@ -191,7 +201,7 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-function PrimarySearchAppBar({setArticles, setHighlights}) {
+function PrimarySearchAppBar({setArticles, setHighlights, setProgress}) {
   const classes = useStyles();
 
   React.useEffect(() => {
@@ -209,6 +219,7 @@ function PrimarySearchAppBar({setArticles, setHighlights}) {
       // document.getElementById("myBtn").click();
       // const res = getRes(input.value)
 
+      setProgress(true)
       const val = input.value
       var q = queryString.parse(window.location.search);
       // set the `row` property
@@ -218,13 +229,14 @@ function PrimarySearchAppBar({setArticles, setHighlights}) {
       window.location.search = queryString.stringify(q);
       postData(url, JSON.stringify(val))
         .then((data) => {
+          setProgress(false)
           console.log(data); // JSON data parsed by `response.json()` call
           setArticles(data.results.results.Articles)
           setHighlights(data.results.results.Highlights)
         });
     }
   });
-  }, [setArticles, setHighlights])
+  }, [])
 
   return (
     <div className={classes.grow}>
@@ -287,7 +299,7 @@ function SimpleCard({article}) {
             {text_truncate(article.Title)}
           </Typography>
         </a>
-        <Typography className={classes.pos} color="textSecondary">
+        <Typography className={classes.title} color="textSecondary" gutterBottom>
           {article.Published}
         </Typography>
         <Typography variant="body2" component="p">
