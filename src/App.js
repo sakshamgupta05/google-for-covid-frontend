@@ -239,7 +239,12 @@ function PrimarySearchAppBar({setArticles, setHighlights, setProgress}) {
       q.search = val;
       // convert the object to a query string
       // and overwrite the existing query string
-      window.location.search = queryString.stringify(q);
+      const query = queryString.stringify(q);
+
+      if (window.history.pushState) {
+          var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + query;
+          window.history.pushState({path:newurl},'',newurl);
+      }
       postData(url, JSON.stringify(val))
         .then((data) => {
           setProgress(false)
@@ -275,7 +280,6 @@ function PrimarySearchAppBar({setArticles, setHighlights, setProgress}) {
           <div className={classes.grow} />
         </Toolbar>
       </AppBar>
-
     </div>
   );
 }
@@ -283,7 +287,6 @@ function PrimarySearchAppBar({setArticles, setHighlights, setProgress}) {
 const useStylesCard = makeStyles({
   root: {
     minWidth: 275,
-    // display: 'inline-block'
   },
   bullet: {
     display: 'inline-block',
