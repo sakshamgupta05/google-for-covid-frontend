@@ -67,6 +67,9 @@ const useStylesRoot = makeStyles(theme => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     marginTop: theme.spacing(2)
+  },
+  highlight: {
+    marginTop: theme.spacing(2)
   }
 }));
 
@@ -101,17 +104,27 @@ function App() {
                 highlights && highlights.length > 0 && (
                   <Grid container className={classes.root} spacing={2}>
                     <Grid item xs={12} md={8}>
-                      <div className={classes.highlights}>
-                        <Typography variant="h5" component="h2">
-                          Highlights
-                        </Typography>
-                        <ul>
-                          {
-                            highlights && highlights.map(hl => (
-                              <li>{hl}</li>
-                            ))
-                          }
-                        </ul>
+                      <div className={classes.container}>
+                      <Card className={classes.root} variant="outlined">
+                        <CardContent>
+                          <div className={classes.highlights}>
+                            <Typography variant="h6" component="h2">
+                              Highlights
+                            </Typography>
+                            <ul>
+                            {
+                              highlights && highlights.map(hl => (
+                                <li>
+                                  <Typography className={classes.highlight} variant="body2" component="p">
+                                    {hl}
+                                  </Typography>
+                                </li>
+                              ))
+                            }
+                            </ul>
+                          </div>
+                        </CardContent>
+                      </Card>
                       </div>
                     </Grid>
                   </Grid>
